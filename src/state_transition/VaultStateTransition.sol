@@ -6,6 +6,7 @@ import "../Constants.sol";
 import "../utils/MulDiv.sol";
 import "../structs/state_transition/NextStateData.sol";
 import "src/events/IStateUpdateEvent.sol";
+import "forge-std/console.sol";
 
 abstract contract VaultStateTransition is LTVState, IStateUpdateEvent {
     using sMulDiv for int256;
@@ -16,6 +17,11 @@ abstract contract VaultStateTransition is LTVState, IStateUpdateEvent {
         int256 oldFutureRewardBorrowAssets = futureRewardBorrowAssets;
         int256 oldFutureRewardCollateralAssets = futureRewardCollateralAssets;
         uint256 oldStartAuction = startAuction;
+
+        console.log("future borrow", nextStateData.nextState.futureBorrow);
+        console.log("future collateral", nextStateData.nextState.futureCollateral);
+        console.log("future reward borrow", nextStateData.nextState.futureRewardBorrow);
+        console.log("future reward collateral", nextStateData.nextState.futureRewardCollateral);
 
         // Here we have conflict between HODLer and Future auction executor. Round in favor of HODLer
 

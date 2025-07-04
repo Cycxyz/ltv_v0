@@ -102,5 +102,9 @@ library MintRedeem {
             - deltaFuture.deltaUserFutureRewardBorrow - deltaFuture.deltaFuturePaymentBorrow;
 
         assets = data.isBorrow ? assets : -assets;
+        console.log("Mint redeem");
+        console.log("Real collateral", data.collateral - data.futureCollateral - data.userFutureRewardCollateral - data.protocolFutureRewardCollateral);
+        console.log("Real borrow", data.borrow - data.futureBorrow - data.userFutureRewardBorrow - data.protocolFutureRewardBorrow);
+        console.log("assets", assets);
     }
 }

@@ -6,6 +6,7 @@ import "../structs/data/vault/Cases.sol";
 import "../structs/state_transition/DeltaFuture.sol";
 import "src/math/CasesOperator.sol";
 import "../utils/MulDiv.sol";
+import "forge-std/console.sol";
 
 library CommonBorrowCollateral {
     using uMulDiv for uint256;
@@ -52,6 +53,7 @@ library CommonBorrowCollateral {
             int256(int8(ncase.cecb + ncase.cebc)) * deltaFutureBorrow.mulDivDown(futureCollateral, futureBorrow);
         deltaFutureCollateral += int256(int8(ncase.ceccb + ncase.cecbc)) * (futureBorrow - futureCollateral);
 
+        console.log("delta future collateral", deltaFutureCollateral);
         return deltaFutureCollateral;
     }
 

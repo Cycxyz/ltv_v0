@@ -21,6 +21,8 @@ library DepositWithdraw {
     {
         Cases memory cases = CasesOperator.generateCase(0);
 
+        console.log("DELTA", data.collateral - data.borrow * 4 / 3);
+
         (deltaFuture.deltaFutureCollateral, cases) = DeltaRealBorrowAndDeltaRealCollateral
             .calculateDeltaFutureCollateralByDeltaRealBorrowAndDeltaRealCollateral(
             DeltaRealBorrowAndDeltaRealCollateralData({
@@ -77,5 +79,10 @@ library DepositWithdraw {
         sharesAsAssets = data.deltaRealCollateral + deltaFuture.deltaFutureCollateral
             + deltaFuture.deltaUserFutureRewardCollateral + deltaFuture.deltaFuturePaymentCollateral - data.deltaRealBorrow
             - deltaFuture.deltaFutureBorrow - deltaFuture.deltaUserFutureRewardBorrow - deltaFuture.deltaFuturePaymentBorrow;
+
+        console.log("Mint redeem");
+        console.log("Real collateral", data.collateral - data.futureCollateral - data.userFutureRewardCollateral - data.protocolFutureRewardCollateral);
+        console.log("Real borrow", data.borrow - data.futureBorrow - data.userFutureRewardBorrow - data.protocolFutureRewardBorrow);
+        console.log("assets", data.deltaRealBorrow);
     }
 }

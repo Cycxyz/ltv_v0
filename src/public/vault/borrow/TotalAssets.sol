@@ -6,6 +6,7 @@ import "../../../utils/MulDiv.sol";
 import "../../../math/CommonMath.sol";
 import "../../../structs/data/vault/TotalAssetsData.sol";
 import "../../../structs/state/vault/TotalAssetsState.sol";
+import "forge-std/console.sol";
 
 abstract contract TotalAssets {
     using uMulDiv for uint256;
@@ -22,6 +23,8 @@ abstract contract TotalAssets {
     function _totalAssets(bool isDeposit, TotalAssetsData memory data) public pure virtual returns (uint256) {
         // Add 100 to avoid vault attack
         // in case of deposit need to overestimate our assets
+        console.log("initial borrow in total assets", data.borrow * 4 / 3);
+        console.log("initial collateral in total assets", data.collateral);
         return uint256(data.collateral - data.borrow).mulDiv(Constants.ORACLE_DIVIDER, data.borrowPrice, isDeposit)
             + Constants.VIRTUAL_ASSETS_AMOUNT;
     }
@@ -54,6 +57,7 @@ abstract contract TotalAssets {
 
         data.collateral = int256(realCollateral) + futureCollateral + futureRewardCollateral;
         data.borrow = int256(realBorrow) + futureBorrow + futureRewardBorrow;
+
         data.borrowPrice = state.commonTotalAssetsState.borrowPrice;
 
         return data;
