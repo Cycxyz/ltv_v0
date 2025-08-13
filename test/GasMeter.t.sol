@@ -151,8 +151,6 @@ library OldMath {
 // }
 
 contract GasMeterTest is Test {
-    function setUp() public {}
-
     function test_gas_meter() public {
         int256 one = -52342562;
         int256 two = -32352562;

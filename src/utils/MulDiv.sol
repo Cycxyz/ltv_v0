@@ -6,8 +6,6 @@ library uMulDiv {
     uint256 internal constant MAX_UINT256 = 2 ** 256 - 1;
 
     function mulDivDown(uint256 factorA, uint256 factorB, uint256 denominator) internal pure returns (uint256 result) {
-        require(denominator != 0, "Denominator cannot be zero");
-
         /// @solidity memory-safe-assembly
         assembly {
             if iszero(mul(denominator, iszero(mul(factorB, gt(factorA, div(MAX_UINT256, factorB)))))) { revert(0, 0) }
@@ -17,7 +15,6 @@ library uMulDiv {
     }
 
     function mulDivUp(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 z) {
-        require(denominator != 0, "Denominator cannot be zero");
         /// @solidity memory-safe-assembly
         assembly {
             if iszero(mul(denominator, iszero(mul(y, gt(x, div(MAX_UINT256, y)))))) { revert(0, 0) }
