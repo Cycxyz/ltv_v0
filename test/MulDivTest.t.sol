@@ -67,6 +67,14 @@ contract MulDivTest is Test, EuclidianMod, UnsignedHelpers, SignedHelpers {
 
         vm.expectRevert(bytes("Multiplication overflow detected"));
         sMulDiv.mulDivUp(x, y, denominator);
+        console.log("x", x);
+        console.log("y", y);
+        console.log("denominator", denominator);
+        console.log("result", sMulDiv.mulDivDown(x, y, denominator));
+        unchecked {
+            console.log("x * y");
+            console.logBytes32(bytes32(uint256(x * y)));
+        }
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
@@ -79,6 +87,14 @@ contract MulDivTest is Test, EuclidianMod, UnsignedHelpers, SignedHelpers {
 
         vm.expectRevert(bytes("Multiplication overflow detected"));
         sMulDiv.mulDivDown(x, y, denominator);
+        console.log("x", x);
+        console.log("y", y);
+        console.log("denominator", denominator);
+        console.log("result", sMulDiv.mulDivDown(x, y, denominator));
+        unchecked {
+            console.log("x * y");
+            console.logBytes32(bytes32(uint256(x * y)));
+        }
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
@@ -89,6 +105,7 @@ contract MulDivTest is Test, EuclidianMod, UnsignedHelpers, SignedHelpers {
 
         vm.expectRevert(bytes("Division overflow"));
         sMulDiv.mulDivUp(x, y, denominator);
+        console.log("result", sMulDiv.mulDivUp(x, y, denominator));
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
@@ -99,6 +116,7 @@ contract MulDivTest is Test, EuclidianMod, UnsignedHelpers, SignedHelpers {
 
         vm.expectRevert(bytes("Division overflow"));
         sMulDiv.mulDivDown(x, y, denominator);
+        console.log("result", sMulDiv.mulDivDown(x, y, denominator));
     }
 
     function test_uMulDivUpZeroWhenXEqZero(uint256 y, uint256 denominator) public pure {
