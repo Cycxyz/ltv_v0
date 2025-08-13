@@ -238,6 +238,13 @@ contract MulDivTest is Test, EuclidianMod, UnsignedHelpers, SignedHelpers {
         x = sFindDivisionWithoutRemainder(x, y, denominator);
         (x, y, denominator) = sEliminateDivOverflow(x, y, denominator);
 
+        console.log("x", x);
+        console.log("y", y);
+        console.log("denominator", denominator);
+        unchecked {
+            console.log("x * y");
+            console.logBytes32(bytes32(uint256(x * y)));
+        }
         int256 result = sMulDiv.mulDivDown(x, y, denominator);
         int256 expected = (x * y) / denominator;
 

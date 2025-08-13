@@ -49,70 +49,29 @@ library sMulDiv {
             // Early return for zero denominator
             if iszero(denominator) { revert(0, 0) }
 
-            let anyZero := or(iszero(x), iszero(y))
             // Early return for zero inputs
+            let anyZero := or(iszero(x), iszero(y))
             if anyZero { result := 0 }
 
             if iszero(anyZero) {
-                // Get signs using bit manipulation (most significant bit)
-                let xSign := shr(255, x)
-                let ySign := shr(255, y)
-                let denomSign := shr(255, denominator)
-
-                // Convert to absolute values using bit manipulation
-                let xAbs :=
-                    add(
-                        xor(x, add(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, iszero(xSign))),
-                        xSign
-                    )
-                let yAbs :=
-                    add(
-                        xor(y, add(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, iszero(ySign))),
-                        ySign
-                    )
-                let denomAbs :=
-                    add(
-                        xor(
-                            denominator,
-                            add(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, iszero(denomSign))
-                        ),
-                        denomSign
-                    )
-
-                if gt(xAbs, div(0x8000000000000000000000000000000000000000000000000000000000000000, yAbs)) {
-                    revert(0, 0)
-                }
-
                 // Perform multiplication
-                let productAbs := mul(xAbs, yAbs)
+                let product := mul(x, y)
+                if iszero(eq(x, sdiv(product, y))) { revert(0, 0) }
+                if eq(product, 0x8000000000000000000000000000000000000000000000000000000000000000) {
+                    if eq(denominator, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
+                        revert(0, 0)
+                    }
+                }
 
                 // Perform division
-                let divisionAbs := div(productAbs, denomAbs)
+                let division := sdiv(product, denominator)
 
-                // Determine if we need to round down
-                // If product and denominator have same sign, division is already correct
-                // If different signs and there's remainder, we need to subtract 1
-                let division := divisionAbs
+                // Determine if result should be positive or negative
+                let shouldBeNegative := xor(shr(255, product), shr(255, denominator))
 
-                let resultNegative := and(add(add(xSign, ySign), denomSign), 1)
-
-                if resultNegative {
-                    if mod(productAbs, denomAbs) {
-                        divisionAbs := add(divisionAbs, 1)
-                    }
-
-                    if gt(divisionAbs, 0x8000000000000000000000000000000000000000000000000000000000000000) {
-                        revert(0, 0)
-                    }
-
-                    division :=
-                        xor(sub(divisionAbs, 1), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
-                }
-
-                if iszero(resultNegative) {
-                    if gt(divisionAbs, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
-                        revert(0, 0)
-                    }
+                if shouldBeNegative {
+                    // Result should be negative, check if we need to round down
+                    if smod(product, denominator) { division := sub(division, 1) }
                 }
 
                 result := division
@@ -126,62 +85,29 @@ library sMulDiv {
             // Early return for zero denominator
             if iszero(denominator) { revert(0, 0) }
 
-            let anyZero := or(iszero(x), iszero(y))
             // Early return for zero inputs
+            let anyZero := or(iszero(x), iszero(y))
             if anyZero { result := 0 }
 
             if iszero(anyZero) {
-                // Get signs using bit manipulation (most significant bit)
-                let xSign := shr(255, x)
-                let ySign := shr(255, y)
-                let denomSign := shr(255, denominator)
-
-                // Convert to absolute values using bit manipulation
-                let xAbs :=
-                    add(
-                        xor(x, add(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, iszero(xSign))),
-                        xSign
-                    )
-                let yAbs :=
-                    add(
-                        xor(y, add(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, iszero(ySign))),
-                        ySign
-                    )
-                let denomAbs :=
-                    add(
-                        xor(
-                            denominator,
-                            add(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, iszero(denomSign))
-                        ),
-                        denomSign
-                    )
-
-                if gt(xAbs, div(0x8000000000000000000000000000000000000000000000000000000000000000, yAbs)) {
-                    revert(0, 0)
-                }
-
-                let productAbs := mul(xAbs, yAbs)
-                let divisionAbs := div(productAbs, denomAbs)
-                let division := divisionAbs
-
-                let resultNegative := and(add(add(xSign, ySign), denomSign), 1)
-                if iszero(resultNegative) {
-                    if mod(productAbs, denomAbs) {
-                        division := add(divisionAbs, 1)
-                    }
-
-                    if gt(divisionAbs, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
+                // Perform multiplication
+                let product := mul(x, y)
+                if iszero(eq(x, sdiv(product, y))) { revert(0, 0) }
+                if eq(product, 0x8000000000000000000000000000000000000000000000000000000000000000) {
+                    if eq(denominator, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
                         revert(0, 0)
                     }
                 }
 
-                if resultNegative {
-                    if gt(divisionAbs, 0x8000000000000000000000000000000000000000000000000000000000000000) {
-                        revert(0, 0)
-                    }
+                // Perform division
+                let division := sdiv(product, denominator)
 
-                    division :=
-                        xor(sub(divisionAbs, 1), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+                // Determine if result should be positive or negative
+                let shouldBePositive := eq(shr(255, product), shr(255, denominator))
+
+                if shouldBePositive {
+                    // Result should be negative, check if we need to round down
+                    if smod(product, denominator) { division := add(division, 1) }
                 }
 
                 result := division

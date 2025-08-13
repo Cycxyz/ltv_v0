@@ -108,100 +108,60 @@ library OldMath {
     }
 }
 
-library OldMathOptimized {
-    int256 internal constant MAX_INT256 = type(int256).max;
-    int256 internal constant MIN_INT256 = type(int256).min;
+// library OldMathOptimized {
+//     int256 internal constant MAX_INT256 = type(int256).max;
+//     int256 internal constant MIN_INT256 = type(int256).min;
 
-    function mulDivDown(int256 x, int256 y, int256 denominator) internal pure returns (int256 result) {
-        /// @solidity memory-safe-assembly
-        assembly {
-            // Early return for zero denominator
-            if iszero(denominator) { revert(0, 0) }
+//     function mulDivDown(int256 x, int256 y, int256 denominator) internal pure returns (int256 result) {
+//         /// @solidity memory-safe-assembly
+//         assembly {
+//             // Early return for zero denominator
+//             if iszero(denominator) { revert(0, 0) }
 
-            // Early return for zero inputs
-            let anyZero := or(iszero(x), iszero(y))
-            if anyZero { result := 0 }
+//             // Early return for zero inputs
+//             let anyZero := or(iszero(x), iszero(y))
+//             if anyZero { result := 0 }
 
-            if iszero(anyZero) {
-                // Get signs using bit manipulation (most significant bit)
-                let xSign := shr(255, x)
-                let ySign := shr(255, y)
-                let denomSign := shr(255, denominator)
+//             if iszero(anyZero) {
+//                 // Perform multiplication
+//                 let product := mul(x, y)
+//                 if iszero(eq(x, sdiv(product, y))) {
+//                     revert(0, 0)
+//                 }
 
-                // x > 0 && y > 0: check x <= MAX_INT256 / y
-                if and(iszero(xSign), iszero(ySign)) {
-                    if gt(x, sdiv(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, y)) {
-                        revert(0, 0)
-                    }
-                }
+//                 // Perform division
+//                 let division := sdiv(product, denominator)
 
-                // x < 0 && y < 0: check x >= MAX_INT256 / y
-                if and(xSign, ySign) {
-                    if lt(x, sdiv(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, y)) {
-                        revert(0, 0)
-                    }
-                }
+//                 // Determine if result should be positive or negative
+//                 let productSign := shr(255, product)
+//                 let denominatorSign := shr(255, denominator)
+//                 let shouldBeNegative := xor(productSign, denominatorSign)
 
-                // x > 0 && y < 0: check y >= MIN_INT256 / x
-                if and(iszero(xSign), ySign) {
-                    if lt(y, sdiv(0x8000000000000000000000000000000000000000000000000000000000000000, x)) {
-                        revert(0, 0)
-                    }
-                }
+//                 if shouldBeNegative {
+//                     // Result should be negative, check if we need to round down
+//                     if smod(product, denominator) {
+//                         division := sub(division, 1)
+//                     }
+//                 }
 
-                // x < 0 && y > 0: check x >= MIN_INT256 / y
-                if and(xSign, iszero(ySign)) {
-                    if lt(x, sdiv(0x8000000000000000000000000000000000000000000000000000000000000000, y)) {
-                        revert(0, 0)
-                    }
-                }
-
-                // Perform multiplication
-                let product := mul(x, y)
-
-                // Handle special case: product == MIN_INT256
-                if eq(product, 0x8000000000000000000000000000000000000000000000000000000000000000) {
-                    if eq(denominator, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
-                        revert(0, 0)
-                    }
-                }
-
-                // Perform division
-                let division := sdiv(product, denominator)
-
-                // Determine if result should be positive or negative
-                let productSign := shr(255, product)
-                let shouldBePositive := eq(productSign, denomSign)
-
-                if shouldBePositive {
-                    // Result should be positive, division is already correct
-                    result := division
-                }
-
-                if iszero(shouldBePositive) {
-                    // Result should be negative, check if we need to round down
-                    if smod(product, denominator) {
-                        division := sub(division, 1)
-                    }
-                    result := division
-                }
-            }
-        }
-    }
-}
+//                 result := division
+//             }
+//         }
+//     }
+// }
 
 contract GasMeterTest is Test {
     function setUp() public {}
 
     function test_gas_meter() public {
-        int256 one = 52342562;
+        int256 one = -52342562;
         int256 two = -32352562;
         int256 three = -8234;
         uint256 gasStart = gasleft();
         sMulDiv.mulDivDown(one, two, three);
         uint256 gasEnd = gasleft();
         console.log("result", sMulDiv.mulDivDown(one, two, three));
-        console.log("Fancy math Gas used:", gasStart - gasEnd);
+        console.log("OldMathOptimized Gas used:", gasStart - gasEnd);
         // console.log("res up", sMulDiv.mulDivUp(5, 3, 8));
         gasStart = gasleft();
         OldMath.mulDivDown(one, two, three);
@@ -220,12 +180,6 @@ contract GasMeterTest is Test {
         gasEnd = gasleft();
         console.log("result", uMulDiv.mulDivUp(5, 3, 8));
         console.log("UMulDiv Gas used:", gasStart - gasEnd);
-
-        gasStart = gasleft();
-        OldMathOptimized.mulDivDown(one, two, three);
-        gasEnd = gasleft();
-        console.log("result", OldMathOptimized.mulDivDown(one, two, three));
-        console.log("OldMathOptimized Gas used:", gasStart - gasEnd);
     }
 }
 
