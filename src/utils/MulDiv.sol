@@ -53,12 +53,13 @@ library sMulDiv {
             if iszero(anyZero) {
                 // Perform multiplication
                 let product := mul(x, y)
-                if iszero(eq(x, sdiv(product, y))) { revert(0, 0) }
                 if eq(product, 0x8000000000000000000000000000000000000000000000000000000000000000) {
-                    if eq(denominator, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
-                        revert(0, 0)
-                    }
+                    if or(
+                        eq(y, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
+                        eq(denominator, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+                    ) { revert(0, 0) }
                 }
+                if iszero(eq(x, sdiv(product, y))) { revert(0, 0) }
 
                 // Perform division
                 let division := sdiv(product, denominator)
@@ -89,12 +90,13 @@ library sMulDiv {
             if iszero(anyZero) {
                 // Perform multiplication
                 let product := mul(x, y)
-                if iszero(eq(x, sdiv(product, y))) { revert(0, 0) }
                 if eq(product, 0x8000000000000000000000000000000000000000000000000000000000000000) {
-                    if eq(denominator, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff) {
-                        revert(0, 0)
-                    }
+                    if or(
+                        eq(y, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
+                        eq(denominator, 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+                    ) { revert(0, 0) }
                 }
+                if iszero(eq(x, sdiv(product, y))) { revert(0, 0) }
 
                 // Perform division
                 let division := sdiv(product, denominator)
