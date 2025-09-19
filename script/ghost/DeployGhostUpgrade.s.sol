@@ -231,6 +231,8 @@ contract NewStateRemapper is LTVState {
         for (uint256 i = 0; i < newFields.allowances.length; i++) {
             allowance[newFields.allowances[i].owner][newFields.allowances[i].spender] = newFields.allowances[i].amount;
         }
+        collateralTokenDecimals = 18;
+        borrowTokenDecimals = 18;
     }
 }
 
@@ -348,16 +350,16 @@ contract DeployGhostUpgrade is Script, StdCheats, StdAssertions {
         // test part
         ILTV _ltv = ILTV(vm.envAddress("PROXY"));
         address collateralToken = _ltv.collateralToken();
-        address random = makeAddr("random");
-        vm.startPrank(random);
-        deal(collateralToken, random, type(uint256).max);
+        address whale = 0xf53151067F234f9f66474089b2e0de025A5D55D7;
+        vm.startPrank(whale);
+        deal(collateralToken, whale, type(uint256).max);
         IERC20(collateralToken).approve(address(_ltv), type(uint256).max);
-        _ltv.executeLowLevelRebalanceCollateralHint(10 ** 18, true);
+        _ltv.executeLowLevelRebalanceCollateral(10**19);
 
         address borrowToken = _ltv.borrowToken();
-        _ltv.withdraw(_ltv.maxWithdraw(random), random, random);
-        assertGt(IERC20(borrowToken).balanceOf(random), 0);
-        assertGt(_ltv.balanceOf(random), 0);
+        _ltv.withdraw(_ltv.maxWithdraw(whale), whale, whale);
+        assertGt(IERC20(borrowToken).balanceOf(whale), 0);
+        assertGt(_ltv.balanceOf(whale), 0);
         assertGt(
             _ltv.allowance(0xbd6158Bc84546E235dc8CB62fD6a98De2f7B17bF, 0xE2A7f267124AC3E4131f27b9159c78C521A44F3c), 0
         );
